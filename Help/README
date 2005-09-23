@@ -1,0 +1,24 @@
+			Gamma
+			Set the on-screen gamma correction
+			by Thomas Leonard
+
+BRIEF
+
+Gamma is a simple program to set the on-screen gamma correction (using
+the xgamma command, installed with XFree86). You do not need to compile it
+before using it, but you will require ROX-Lib2:
+
+	http://rox.sourceforge.net/rox_lib.html
+
+To run, click on Gamma's icon in a filer window. You can either set the Red,
+Green and Blue corrections separately, or all at once.
+
+
+CONDITIONS
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+Please report any bugs to the mailing list:
+		http://rox.sourceforge.net/contact.html

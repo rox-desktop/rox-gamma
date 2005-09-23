@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<AppInfo>
+  <Summary xml:lang="en">On-screen gamma correction</Summary>
+  <About xml:lang="en">
+    <Purpose>Gamma correction</Purpose>
+    <Version>0.2 (23-Sep-2003)</Version>
+    <Author>Thomas Leonard</Author>
+    <License>GNU General Public License</License>
+    <Homepage>http://rox.sourceforge.net</Homepage>
+  </About>
+</AppInfo>

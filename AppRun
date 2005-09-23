@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+import findrox; findrox.version(1, 9, 6)
+import rox, os
+from rox import g
+
+sizes = g.SizeGroup(g.SIZE_GROUP_HORIZONTAL)
+
+class Slider(g.HBox):
+	def __init__(self, title, name, default = 1.0):
+		g.HBox.__init__(self, False, 2)
+		label = g.Label(title + ': ')
+		label.set_alignment(1.0, 0.5)
+		sizes.add_widget(label)
+		self.pack_start(label, False, True, 0)
+		self.adj = g.Adjustment(default, 0.1, 5)
+		slider = g.HScale(self.adj)
+		slider.set_value_pos(g.POS_RIGHT)
+		self.pack_start(slider, True, True, 0)
+
+		def change(adj):
+			os.system('xgamma -q -%s %f' % (name, adj.value))
+		self.adj.connect('value-changed', change)
+
+box = rox.Dialog()
+box.set_position(g.WIN_POS_MOUSE)
+box.set_has_separator(False)
+
+box.add_button(g.STOCK_CLOSE, g.RESPONSE_CANCEL)
+
+toggle = g.CheckButton('Set red, green and blue separately')
+box.vbox.pack_start(toggle, False, True, 0)
+
+current = os.popen('xgamma 2>&1').read()
+red, green, blue = [float(c.split()[-1]) for c in current.split(',')]
+all = (red + green + blue) / 3
+toggle.set_active(not (red == green == blue))
+
+overall = Slider('Overall', 'gamma', all)
+red_slider = Slider('Red', 'rgamma', red)
+green_slider = Slider('Green', 'ggamma', green)
+blue_slider = Slider('Blue', 'bgamma', blue)
+
+box.vbox.pack_start(overall)
+
+rgb = g.VBox(True, 0)
+box.vbox.pack_start(rgb)
+rgb.pack_start(red_slider)
+rgb.pack_start(green_slider)
+rgb.pack_start(blue_slider)
+
+def shade():
+	sep = toggle.get_active()
+	overall.set_sensitive(not sep)
+	rgb.set_sensitive(sep)
+	if sep:
+		for s in (red_slider, green_slider, blue_slider):
+			s.adj.emit('value-changed')
+	else:
+		overall.adj.emit('value-changed')
+shade()
+toggle.connect('toggled', lambda x: shade())
+
+box.vbox.show_all()
+
+box.run()
