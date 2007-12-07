@@ -2,11 +2,56 @@
 import findrox; findrox.version(1, 9, 6)
 import rox, os
 from rox import g
+import rox.settings
+
+class XSetting:
+	def __init__(self, name, settings):
+		self.settings = settings
+		self.name = name
+		try:
+			self.value = int(settings.GetSetting(self.name)[1])
+		except:
+			self.value = 1000
+
+	def SetInt(self, value):
+		self.settings.SetInt(self.name, value)
+		self.value = value
+
+
+class OverallPseudoSetting:
+	def __init__(self, r, g, b):
+		self.r = r
+		self.g = g
+		self.b = b
+		self.value = (r.value + g.value + b.value) / 3
+
+	def SetInt(self, value):
+		self.value = value
+		self.r.SetInt(value)
+		self.g.SetInt(value)
+		self.b.SetInt(value)
+
+
+rsetting, gsetting, bsetting, osetting = [None, None, None, None]
+if os.environ.get('ROX_SESSION_ENVIRONMENT') != None:
+	try:
+		settings = rox.settings.get_xsettings()
+		rsetting = XSetting("ROX/RGamma", settings)
+		gsetting = XSetting("ROX/GGamma", settings)
+		bsetting = XSetting("ROX/BGamma", settings)
+		osetting = OverallPseudoSetting(rsetting, gsetting, bsetting)
+	except:
+		rox.alert('Unable to use ROX-Session settings')
+
 
 sizes = g.SizeGroup(g.SIZE_GROUP_HORIZONTAL)
 
 class Slider(g.HBox):
-	def __init__(self, title, name, default = 1.0):
+	def __init__(self, title, name, setting, default = 1.0):
+		if setting:
+			default = float(setting.value) / 1000.0
+		self.setting = setting
+		self.gname = name
 		g.HBox.__init__(self, False, 2)
 		label = g.Label(title + ': ')
 		label.set_alignment(1.0, 0.5)
@@ -16,10 +61,14 @@ class Slider(g.HBox):
 		slider = g.HScale(self.adj)
 		slider.set_value_pos(g.POS_RIGHT)
 		self.pack_start(slider, True, True, 0)
+		self.adj.connect('value-changed', self.change)
 
-		def change(adj):
-			os.system('xgamma -q -%s %f' % (name, adj.value))
-		self.adj.connect('value-changed', change)
+	def change(self, adj):
+		if self.setting:
+			self.setting.SetInt(int(adj.value * 1000))
+		else:
+			os.system('xgamma -q -%s %f' % (self.gname, adj.value))
+
 
 box = rox.Dialog()
 box.set_position(g.WIN_POS_MOUSE)
@@ -35,10 +84,10 @@ red, green, blue = [float(c.split()[-1]) for c in current.split(',')]
 all = (red + green + blue) / 3
 toggle.set_active(not (red == green == blue))
 
-overall = Slider('Overall', 'gamma', all)
-red_slider = Slider('Red', 'rgamma', red)
-green_slider = Slider('Green', 'ggamma', green)
-blue_slider = Slider('Blue', 'bgamma', blue)
+overall = Slider('Overall', 'gamma', osetting, all)
+red_slider = Slider('Red', 'rgamma', rsetting, red)
+green_slider = Slider('Green', 'ggamma', gsetting, green)
+blue_slider = Slider('Blue', 'bgamma', bsetting, blue)
 
 box.vbox.pack_start(overall)
 
